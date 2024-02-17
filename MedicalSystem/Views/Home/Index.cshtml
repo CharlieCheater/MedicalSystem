@@ -1,0 +1,87 @@
+﻿@{
+	ViewData["Title"] = "Home Page";
+}
+<div id="vueapp">
+	<div class="row">
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title">Добавление пациента</h3>
+			</div>
+			<div class="card-body">
+				<div class="row">
+					<label>ФИО пациента</label>
+					<input class="form-control" v-model="medcard.name" />
+				</div>
+				<div class="row">
+					<button class="btn btn-success" v-on:click="addPacient">Добавить</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title">Пациенты</h3>
+			</div>
+			<div class="card-body">
+				<div class="row">
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<td style="max-width:100px;width:100px">Qr code</td>
+								<td>ФИО</td>
+
+							</tr>
+						</thead>
+						<template v-for="cd in medcards" v-key="cd.id">
+							<tr>
+								<td>
+									<img :src="'data:image/png;base64,' + cd.imageBase64" alt="Red dot" />
+								</td>
+								<td>
+									{{cd.pacientName}}
+								</td>
+							</tr>
+						</template>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+@section Scripts {
+	<script src="~/js/vue/vue.global.js"></script>
+	<script src="~/js/axios/axios.min.js"></script>
+	<script>
+		const VueApp = {
+			data() {
+				return {
+					medcard: {
+						name: '',
+					},
+					medcards: [],
+				}
+			},
+			mounted() {
+				this.getMedCards();
+			},
+			methods: {
+				addPacient() {
+					let th = this;
+					axios.post('Home/AddMedCard', this.medcard).then((response) => {
+						th.getMedCards();
+					}).catch((err) => {
+						alert('ne ok');
+					});
+				},
+				getMedCards() {
+					let th = this;
+					axios.get('Home/GetMedCards').then((response) => {
+						th.medcards = response.data;
+					});
+				}
+			}
+		};
+		Vue.createApp(VueApp).mount('#vueapp');
+	</script>
+}
